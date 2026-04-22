@@ -1,0 +1,881 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+/*Fundo do site*/
+body {
+    background-color: #cbd5e1; /* Um cinza mais fechado para eliminar o brilho excessivo do fundo */
+    margin: 0;
+    min-height: 100vh;
+}
+
+/*Logica da barra shows/hides*/
+/* O sensor fica invisível no canto esquerdo */
+#sidebar-sensor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 40px; 
+    height: 100vh;
+    z-index: 101; 
+    background: transparent;
+    pointer-events: all;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #1e293bda; /* Aquele cinza escuro da imagem */
+    color: white;    
+    /* O SEGREDO DO BLUR FORTE: */
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); /* Suporte para Safari */
+    
+    /* Um detalhe chique: uma borda bem fininha e clara na direita */
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* O SEGREDO: Empurrar a barra 100% para a esquerda (fica escondida) */
+    transform: translateX(-100%);
+    
+    /* A animação suave: 0.4 segundos com efeito de aceleração/frenagem */
+    transition: transform 0.4s ease-in-out;
+    z-index: 100;
+}
+
+/* Esta classe será adicionada pelo JavaScript */
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar nav ul {
+    list-style: none; /* Remove as bolinhas */
+    padding: 0;       /* Remove o recuo da esquerda */
+    margin: 0;        /* Remove margens externas */
+    width: 100%;      /* Garante que a lista ocupe a largura da barra */
+    margin-top: 50px;
+}
+
+.sidebar nav ul li {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 15px;            /* Espaço confortável dentro do "botão" */
+    margin: 5px 20px;        /* Espaço entre os botões e as bordas da barra */
+    cursor: pointer;          /* Faz o mouse virar a "mãozinha" */
+    transition: background 0.3s; /* Deixa a cor de fundo mudar suavemente */
+    border-radius: 8px;       /* Bordas arredondadas (o retângulo suave) */
+    text-align:left;       /* Centraliza o texto */
+}
+
+.sidebar nav ul li.active {
+    background-color: #334155; /* Um roxo ou azul para destacar */
+    font-weight: bold;         /* Deixa o texto mais forte */
+}
+
+.sidebar nav ul li:hover {
+    background-color: #ffffff15; /* Um cinza um pouco mais claro que a barra */
+}
+
+.logo {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 28px;         /* Deixa o nome imponente */
+    font-weight: bold;       /* Negrito como na imagem */
+    letter-spacing: 2px;     /* Dá um ar mais chique/moderno */
+    
+    padding-top: 40px;       /* Empurra o texto para baixo */
+    padding-bottom: 20px;    /* Espaço antes de começar o menu */
+    
+    text-align: center;      /* Centraliza o texto na largura da barra */
+    width: 100%;             /* Garante que o centro seja o centro da sidebar */
+}
+
+/* Container para posicionar no rodapé */
+.theme-container {
+    position: absolute;
+    bottom: 30px; /* Distância do fundo da barra */
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centraliza o botão horizontalmente */
+}
+
+#theme-toggle {
+    /* Formato e Tamanho (parecido com os seus LIs) */
+    width: 80%; /* Ocupa quase toda a largura interna */
+    padding: 12px;
+    
+    /* O Visual de Pílula Vazada */
+    background: transparent;
+    border: 1px solid #475569; /* Um cinza médio para o contorno */
+    border-radius: 20px;       /* Curva bem acentuada de pílula */
+    
+    /* Texto */
+    color: #94a3b8; /* Cor do texto mais suave */
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Efeito de Hover para o botão */
+#theme-toggle:hover {
+    border-color: #f8fafc; /* O contorno brilha ao passar o mouse */
+    color: #f8fafc;        /* O texto também brilha */
+    background-color: rgba(255, 255, 255, 0.05); /* Um brilho bem sutil no fundo */
+}
+
+/* Barra Superior*/
+.top-bar {
+    width: 100%;
+    height: 70px;
+    background-color: #f1f5f9; /* Tom levemente acinzentado para reduzir o clarão */
+    font-family: Arial, Helvetica, sans-serif;
+    
+    /* O SEGREDO DA PROFUNDIDADE: */
+    /* Deslocamento X, Deslocamento Y, Desfoque, Espalhamento, Cor com Opacidade */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra um pouco mais definida */
+    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    
+    /* Garante que ela fique no topo mesmo se rolarmos a página */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.content {
+    margin-left: 0; /* Começa do zero, já que a sidebar é flutuante */
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Container que segura o título e o quadro */
+.dashboard-container {
+    padding: 40px; /* Espaço nas laterais e no topo */
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Espaço exato entre o título e o quadro branco */
+    min-height: calc(100vh - 70px); /* Ocupa o resto da tela descontando o header */
+}
+
+/* O Título (Mesma vibe da Logo) */
+.main-title {
+    font-size: 24px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: #1e293b; /* Cinza escuro elegante */
+    letter-spacing: 1px;
+    text-transform: uppercase; /* Para ficar imponente como a logo */
+}
+
+/* O Quadro Branco Arredondado */
+.board-canvas {
+    background-color: #f1f5f9; /* Mesma cor da top-bar para harmonia */
+    border-radius: 20px 20px 0 0; /* Arredonda só os cantos de cima */
+    flex-grow: 1; /* Faz o quadro esticar até o fundo da tela */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
+    
+    padding: 30px;
+    border: 1px solid #cbd5e1; /* Borda mais visível para separar do fundo */
+}
+
+.board-header {
+    display: flex;
+    justify-content: flex-start; /* Empurra todo o conteúdo para o final (direita) */
+    width: 100%;
+    margin-bottom: 20px;       /* Dá um espaço para o que vier abaixo */
+}
+
+.board-subtitle {
+    color: #64748b;            /* Um cinza médio, para não brigar com o título principal */
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;           /* Um pouco menor, estilo legenda */
+    font-weight: 500;          /* Nem muito fino, nem muito grosso */
+    font-style: bold;        /* Opcional: dá um charme de "instrução" */
+}
+
+.board-canvas {
+    background-color: #f1f5f9;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); 
+    border: 1px solid #cbd5e1;
+    
+    /* Importante: Retiramos o display:flex e flex-grow aqui para as colunas não esticarem à força */
+}
+
+/* O container que segura os 3 "retângulos" */
+.columns-container {
+    display: flex;
+    gap: 25px; /* Espaço generoso entre eles para parecerem flutuar */
+    margin-top: 30px; /* Espaço abaixo do texto "Gerencie suas tarefas" */
+    
+    /* O SEGREDO: Garante que elas comecem no topo e cresçam organicamente */
+    align-items: flex-start; 
+}
+
+/* Cada "retângulo" (Coluna) */
+.column {
+    flex: 1; /* Divide o espaço igualmente */
+    background-color: #cbd5e1; /* Mesma cor do fundo do site para criar o efeito de profundidade vazada */
+    border-radius: 12px; /* Cantos arredondados suaves */
+    padding: 20px;
+    border: 1px solid #cbd5e1; 
+    
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espaço interno entre o título e o texto de nenhuma tarefa */
+    
+    /* Não definimos altura fixa aqui. Ela crescerá com o conteúdo */
+}
+
+/* Título interno de cada coluna (A Fazer, etc) */
+.column-header {
+    font-weight: 600;
+    color: #475569;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+/* O texto "Nenhuma Tarefa" */
+.no-tasks-text {
+    color: #94a3b8; /* Cinza mais claro, para não chamar atenção */
+    font-size: 13px;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic; /* Dá um charme de placeholder */
+    padding: 10px 0;
+}
+
+.dashboard-header-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#open-modal-btn {
+    background-color: #1e293b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#open-modal-btn:hover {
+    background-color: #334155;
+}
+
+/* --- ESTILIZAÇÃO MODERNA DO MODAL --- */
+
+/* O Retângulo da Tarefa (Card) */
+.task-card {
+    background-color: #ffffff; /* Fundo branco para destacar do fundo cinza da coluna */
+    padding: 24px 16px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Shadow padrão Tailwind (muito elegante) */
+    border-left: 5px solid #cbd5e1; /* Cor padrão */
+    
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative; /* Para posicionar o botão X */
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Cores das Bordas de Prioridade */
+.task-card.minima { border-left-color: #22c55e; } /* Verde */
+.task-card.media { border-left-color: #eab308; }  /* Amarelo */
+.task-card.dificil { border-left-color: #ef4444; } /* Vermelho */
+
+/* Estado de Concluído: Borda Cinza */
+.task-card.done-status {
+    border-left-color: #94a3b8 !important;
+}
+
+/* Botão de Apagar (X) nos Cards e Sidebar */
+.delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.delete-btn:hover {
+    color: #ef4444;
+}
+
+/* Texto dentro do Card */
+.task-card strong {
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+}
+
+/* Badge de Prioridade Estilizada (Pill) */
+.priority-badge {
+    display: inline-block;
+    width: fit-content;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.priority-badge.minima { background-color: #22c55e; }
+.priority-badge.media { background-color: #eab308; }
+.priority-badge.dificil { background-color: #ef4444; }
+
+/* 1. O Fundo Desfocado (Overlay) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.3); /* Um azul escuro bem transparente */
+    backdrop-filter: blur(8px);       /* Desfoque mais intenso e moderno */
+    display: none;                    /* Escondido por padrão */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+/* 2. A Caixa Branca do Modal */
+.modal-content {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 20px;               /* Cantos bem redondos e soft */
+    width: 420px;
+    max-width: 90%;                   /* Responsivo para celular */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1); /* Sombra suave e profunda */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Título */
+.modal-content h2 {
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 5px;
+}
+
+/* Campo de Texto (Input) */
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;       /* Borda sutil */
+    border-radius: 10px;
+    font-size: 14px;
+    color: #475569;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.modal-content input[type="text"]:focus {
+    border-color: #3b82f6;           /* Brilho azul suave no foco */
+}
+
+/* Legenda da Prioridade */
+.modal-content p {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 10px;
+}
+
+/* 3. LÓGICA DAS PÍLULAS DE PRIORIDADE (Cinza -> Colorido) */
+.priority-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Estilo Base da Pílula (Cinza "Desativada") */
+.priority-pill {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #f1f5f9;       /* Cinza padrão soft */
+    color: #64748b;                  /* Texto cinza */
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;    /* Para não mover ao selecionar */
+}
+
+/* Esconde o rádio real */
+.priority-pill input[type="radio"] {
+    display: none;
+}
+
+/* Quando SELECIONADA (Usando a lógica existente no CSS) */
+.priority-pill.green input:checked + span, 
+.priority-pill.green.active {
+    background-color: #dcfce7;       /* Verde Pastel */
+    color: #166534;
+}
+
+.priority-pill.yellow input:checked + span, 
+.priority-pill.yellow.active {
+    background-color: #fef9c3;       /* Amarelo Pastel */
+    color: #854d0e;
+}
+
+.priority-pill.red input:checked + span, 
+.priority-pill.red.active {
+    background-color: #fee2e2;       /* Vermelho Pastel */
+    color: #991b1b;
+}
+
+/* 4. BOTÕES DE AÇÃO (Cancelar/Criar) Redondos */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;              /* Botões redondos "pílula" */
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Botão Cancelar (Cinza Soft) */
+#close-modal {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+#close-modal:hover {
+    background-color: #cbd5e1;
+}
+
+/* Botão Criar (Azul Moderno) */
+#save-task {
+    background-color: #3b82f6;        /* Azul elétrico soft */
+    color: white;
+}
+
+#save-task:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);       /* Leve flutuação no hover */
+}
+
+/* Efeito visual no card que está sendo movido */
+.task-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+/* Efeito visual na coluna quando uma tarefa passa por cima dela */
+.column.drag-over {
+    background-color: #e2e8f0; /* Um cinza um pouco mais escuro para dar feedback */
+    border: 2px dashed #94a3b8;
+}
+
+.search-area span {
+    font-family: Arial, sans-serif;
+    font-weight: bold;         /* Deixa em negrito */
+    font-size: 20px;           /* Aumenta o tamanho */
+    color: #1e293b;            /* Cor cinza escuro elegante */
+    letter-spacing: 1px;       /* Espaçamento entre letras */
+    text-transform: uppercase; /* Garante que fique em maiúsculo */
+}
+
+.no-tasks-text {
+    pointer-events: none; /* Impede que o texto atrapalhe o "drop" da tarefa */
+    user-select: none;
+    margin-top: 10px;
+}
+
+.logo-container {
+    padding: 30px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    cursor: pointer;
+}
+
+.menu-icon {
+    font-size: 24px;
+    color: white;
+}
+
+.logo-text {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: rgb(255, 255, 255);
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.sidebar.active .logo-text {
+    opacity: 1;
+    color: white;
+}
+
+.sidebar.active .menu-icon {
+    color: white;
+}
+
+/* Ajuste na Sidebar para não cortar o que está "fora" dela */
+.sidebar {
+    overflow: visible !important; /* CRÍTICO: permite que o ícone apareça fora da borda */
+}
+
+#sidebar-nav {
+    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 20px;
+}
+
+.nav-item {
+    color: #94a3b8;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.delete-event-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.nav-item:hover .delete-event-btn {
+    opacity: 1;
+}
+
+.delete-event-btn:hover {
+    color: #ef4444;
+}
+
+.add-event-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.3s;
+    
+}
+
+.add-event-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Garante que os botões do modal de evento sigam o padrão azul/cinza */
+#close-event-modal { background-color: #e2e8f0; color: #475569; }
+#save-event-btn { background-color: #3b82f6; color: white; }
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+}
+
+/* Container para alinhar sino e avatar */
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Estilo do Sininho */
+.notification-container {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+    color: #64748b; /* Cor cinza neutra minimalista */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px; /* Mesma altura do avatar para alinhamento perfeito */
+}
+
+.notification-container:hover {
+    transform: scale(1.1);
+    color: #1e293b; /* Escurece um pouco no hover */
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ef4444; /* Vermelho */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: none; /* Escondido quando zero */
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* Menu de Notificações */
+.notification-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+    border: 1px solid #f0f0f0;
+    cursor: default;
+}
+
+.notification-dropdown.active {
+    display: flex;
+    animation: slideIn 0.3s ease;
+}
+
+.notification-dropdown h3 {
+    font-size: 14px;
+    color: #1e293b;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 8px;
+}
+
+/* Estilo do Ícone Ying-Yang */
+.theme-toggle-icon {
+    font-size: 26px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px; /* Mesma altura do avatar para alinhamento perfeito */
+    line-height: 1;
+    user-select: none;
+}
+
+.theme-toggle-icon:hover {
+    color: #1e293b;
+}
+
+/* Animação de Rotação */
+.rotate-icon {
+    animation: rotateTheme 0.5s ease-in-out;
+}
+
+@keyframes rotateTheme {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ================================================= */
+/* CONFIGURAÇÕES DO DARK MODE (Tons Escuros Suaves) */
+/* ================================================= */
+
+body.dark-mode {
+    background-color: #0f172a; /* Slate 950 (Fundo sólido) */
+}
+
+body.dark-mode .top-bar {
+    background-color: #1e293b; /* Slate 900 */
+    border-bottom: 1px solid #334155;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .search-area span,
+body.dark-mode .main-title {
+    color: #f8fafc;
+}
+
+body.dark-mode .theme-toggle-icon,
+body.dark-mode .notification-container {
+    color: #94a3b8;
+}
+
+body.dark-mode .theme-toggle-icon:hover,
+body.dark-mode .notification-container:hover {
+    color: #f8fafc;
+}
+
+body.dark-mode .board-canvas {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .column {
+    background-color: #0f172a; /* Efeito "vazado" igual ao fundo do site */
+    border-color: #1e293b;
+}
+
+body.dark-mode .column-header {
+    color: #94a3b8;
+}
+
+body.dark-mode .task-card {
+    background-color: #334155; /* Slate 700 */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .task-card strong {
+    color: #f1f5f9;
+}
+
+body.dark-mode .board-subtitle,
+body.dark-mode .no-tasks-text {
+    color: #475569;
+}
+
+body.dark-mode .user-dropdown,
+body.dark-mode .notification-dropdown {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+/* O Círculo Azul */
+.user-profile {
+    position: relative;
+    cursor: pointer;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.avatar-circle:hover {
+    transform: scale(1.05);
+}
+
+/* Menu Dropdown Moderno */
+.user-dropdown {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    width: 200px;
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: none; /* Escondido por padrão */
+    flex-direction: column;
+    z-index: 2000;
+    border: 1px solid #f0f0f0;
+}
+
+.user-dropdown.active {
+    display: flex;
+    animation: slideIn 0.3s ease;
+}
+
+.user-dropdown button {
+    background: #f8fafc;
+    border: none;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #475569;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.user-dropdown button:hover {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.user-dropdown button.danger {
+    color: #ef4444;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

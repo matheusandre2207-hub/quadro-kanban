@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMINA</title>
+</head>
+<body>  
+
+    <div id="sidebar-sensor"></div>
+
+<aside id="main-sidebar" class="sidebar">
+    <div class="logo-container">
+        <span class="logo-text">LUMINA</span>
+    </div>
+
+    <nav id="sidebar-nav">
+    </nav>
+
+    <button id="add-event-btn" class="add-event-btn">Adicionar Evento</button>
+</aside>
+
+<!--Barra superior-->
+<main class="content">
+    <!-- Nova Barra de Topo -->
+    <header class="top-bar">
+        <div class="search-area">
+            <span class="logo-text">☰ LUMINA</span>
+            <!-- Futuramente aqui pode ter uma busca -->
+        </div>
+        <div class="top-bar-right">
+            <!-- Botão de Tema (Ying-Yang) -->
+            <div id="theme-toggle-btn" class="theme-toggle-icon" title="Alternar Tema">
+                ☯
+            </div>
+
+            <!-- Sininho de Notificações -->
+            <div class="notification-container" id="notification-control">
+                <div class="bell-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                    </svg>
+                </div>
+                <span class="notification-badge" id="notification-badge">0</span>
+                
+                <div class="notification-dropdown" id="notification-dropdown">
+                    <h3>Notificações</h3>
+                    <ul id="notification-list">
+                        <li class="empty-msg">Nenhuma notificação</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="user-profile" id="user-control">
+            <!-- Um placeholder para o avatar do usuário -->
+            <div class="avatar" id="avatar">?</div>
+
+            <div class="user-dropdown" id="user-dropdown">
+            <p id="dropdown-user-name">Visitante</p>
+            <p id="dropdown-user-email" style="font-size: 11px; opacity: 0.6;">fazer login</p>
+            <hr>
+            <button id="btn-open-login">Minha Conta</button>
+            <button id="logout-btn" class="danger">Sair</button>
+        </div>
+        </div>
+        </div>
+    </header>
+
+<div class="dashboard-container">
+    <!-- Título e Botão na mesma linha -->
+    <div class="dashboard-header-inline">
+        <h1 class="main-title">MEU QUADRO DE TAREFAS</h1>
+        <button id="open-modal-btn">+ NOVA TAREFA</button>
+    </div>
+
+    <section class="board-canvas">
+        <div class="board-header">
+            <span class="board-subtitle">Gerencie suas tarefas aqui.</span>
+        </div>
+
+        <!-- O QUE ESTAVA FALTANDO: As as aqui dentro -->
+        <div class="columns-container">
+            <div class="column" id="col-todo">
+                <div class="column-header">A Fazer</div>
+                <div class="no-tasks-text">Nenhuma tarefa</div>
+            </div>
+            <div class="column" id="col-doing">
+                <div class="column-header">Em Andamento</div>
+                <div class="no-tasks-text">Nenhuma tarefa</div>
+            </div>
+            <div class="column" id="col-done">
+                <div class="column-header">Concluído</div>
+                <div class="no-tasks-text">Nenhuma tarefa</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- MODAL DE TAREFAS (O QUE JÁ EXISTIA) -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Nova Tarefa</h2>
+        <input type="text" id="task-name" placeholder="Digite o nome da tarefa...">
+        
+        <p>Prioridade:</p>
+        <div class="priority-options">
+            <label class="priority-pill green">
+                <input type="radio" name="priority" value="minima" checked>
+                <span>Mínima</span>
+            </label>
+            <label class="priority-pill yellow">
+                <input type="radio" name="priority" value="media">
+                <span>Média</span>
+            </label>
+            <label class="priority-pill red">
+                <input type="radio" name="priority" value="dificil">
+                <span>Difícil</span>
+            </label>
+        </div>
+
+        <div class="modal-actions">
+            <button id="close-modal">Cancelar</button>
+            <button id="save-task">Criar Tarefa</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE EVENTO (O NOVO - SEPARADO) -->
+<div id="modal-event-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Novo Evento</h2>
+        <input type="text" id="event-name-input" placeholder="Digite o nome do evento...">
+        
+        <div class="modal-actions">
+            <button id="close-event-modal">Cancelar</button>
+            <button id="save-event-btn">Criar Evento</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE LOGIN (O QUE ESTAVA FALTANDO) -->
+<div id="modal-login-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Minha Conta</h2>
+        <input type="text" id="login-name" placeholder="Seu nome...">
+        <input type="text" id="login-email-input" placeholder="Seu e-mail...">
+        
+        <div class="modal-actions">
+            <button id="close-login-modal">Cancelar</button>
+            <button id="save-user-btn">Salvar Alterações</button>
+        </div>
+    </div>
+</div>
+
+<script src="user-db.js"></script>
+<script src="script.js"></script>
+
+<script>
+    // Lógica para alternar o tema e disparar a animação
+    const themeBtn = document.getElementById('theme-toggle-btn');
+
+    // 1. Ao carregar a página, verifica se já existe um tema salvo
+    if (localStorage.getItem('lumina_theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        // 2. Alterna a classe e guarda o novo estado em uma variável
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        
+        // 3. Salva a escolha no localStorage ('dark' ou 'light')
+        localStorage.setItem('lumina_theme', isDarkMode ? 'dark' : 'light');
+        
+        // Adiciona a classe de animação e remove após terminar (0.5s)
+        themeBtn.classList.add('rotate-icon');
+        setTimeout(() => {
+            themeBtn.classList.remove('rotate-icon');
+        }, 500);
+    });
+</script>
+
+</body>
+</html>
